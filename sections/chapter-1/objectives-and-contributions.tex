@@ -1,0 +1,25 @@
+\section{Objectives and Contributions of the Thesis}
+\label{sec:objectives}
+
+The innovative contributions of this dissertation exist within the intersection of blockchain technology and the traditionally structured realm of collateral management for derivative trading. This work illuminates the potential for this technology to streamline, secure, and transform the intricate processes involved in managing collateral.
+
+Firstly, a substantial contribution of this work involves developing a concrete methodology for tokenising underlying collateral assets. Tokenisation, as examined in this dissertation, is a procedure that embodies the translation of the economic and legal rights associated with a real-world asset into a digital token. This mechanism makes the asset easily transferable and divisible, enabling more efficient management and real-time valuations. In essence, the endeavour to precisely define the method and expected value outcomes of tokenisation provides a gateway to greater liquidity, improved accessibility, and the potential for enhanced market depth and breadth.
+
+Secondly, this work outlines a robust representation for these tokenised assets in the digital space, which is often referred to as a "digital twin". Specifically, this involves demonstrating in code how these digital representations can encapsulate their unique value per asset type. This novel contribution paves the way for an improved system of representing physical assets digitally. It enhances the overall understanding and representation of the asset and, in the process, facilitates more accurate and efficient asset management.
+
+The creation of a Proof of Concept (PoC) forms the third innovative contribution. The PoC, demonstrated in code form, goes beyond the theoretical assertions to offer a hands-on, tangible representation of the proposed solution. It provides a compelling representation of how such a system might operate in practice, adding credibility to the proposed methods.
+
+In addition, the benefits of the proposed solution are explored from a multi-dimensional perspective, encompassing economic, financial, legal, and technological facets. This exhaustive approach enables a comprehensive appreciation of the implications of the proposed solution, ensuring that its application is grounded in practicality and feasibility.
+
+Specific novel techniques have been proposed in constructing the solution. The use of BSV as the blockchain of choice for implementing tokenised collateral management, for example, is a unique choice. The decision to use BSV has been taken considering its microtransaction capability, the scalability it offers, and its adherence to the original Bitcoin protocol, providing a stable platform for building the applications \citep{coingeek_bsv}.
+
+Moreover, the proposed architecture incorporates oracles (3rd party data providers to communicate off-chain information to the smart contracts) that are secure, transparent, and tamper-evident, ensuring that any financial calculations or regulatory compliance checks are carried out based on trustworthy data. By doing so, the architecture is not only enhancing the automation but also reducing the potential for human errors and biases in decision-making processes.
+
+The derivative lifecycle is a complex system containing a high degree of interconnectivity between the legal, economic, financial and technological layers. We have decided to exclude the following aspects from the scope of this thesis in the interest of concision and clarity, however we do hope that the present work will constitute part of future comprehensive research aimed at capturing the full complexity of the system.
+
+\begin{itemize}
+    \item We do not concern ourselves with determining which parts of the derivative lifecycle are worth automating. ISDA recommendations assume that certain aspects of the legal agreements between counterparties are easier to automate than others \citep{clack2019smart}. We restrict the mapping of collateral to its tokenised representation to those aspects that have been already codified in a formal representation in the ISDA CDM. 
+
+    \item We do not perform an exhaustive quantitative comparative analysis with existing collateral management and trade settlement systems, e.g. SWIFT \citep{SWIFT}. The thesis only presents an overview of how the transactions and obligations could be performed by using the tokenised representations, paving the way for future quantitative research to gauge the effectiveness of the system.
+    
+\end{itemize}

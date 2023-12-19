@@ -1,0 +1,272 @@
+% for two sided printing
+%\documentclass[11pt,a4paper,twoside]{book}
+% for one sided printing
+\documentclass[11pt,a4paper,oneside]{book}
+% A few packages that you might need - I have included all the ones that are needed for this template to work correctly, plus a few more. If you wish to do more with Latex then you may need to import other ones. 
+\usepackage{amsmath,amssymb,amsthm,color,enumerate,graphicx,stackrel,natbib,setspace,ifthen,url,array,theorem,pifont}
+\usepackage{lscape}
+\usepackage{placeins}
+\usepackage{multirow}
+\usepackage{fancyhdr}
+\usepackage{emptypage}
+% For printing with binding
+\usepackage[inner=4cm,outer=2cm,top=2.5cm,bottom=3cm]{geometry}
+% For pdf or printing without binding
+% \usepackage[inner=3cm,outer=3cm,top=2.5cm,bottom=3cm]{geometry}
+\usepackage[sc]{titlesec}
+
+%\usepackage[toc,page]{appendix}
+\usepackage[titletoc,title]{appendix}
+%\input{FloatSettings} % For things like figures and tables
+%\input{BibSettings}   % For bibliographies
+\linespread{1.3}
+% Title Settings
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\usepackage{hyperref}
+\usepackage{doi}
+
+% For subfigures
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+
+% For turning " into ``
+\usepackage [english]{babel}
+\usepackage [autostyle, english = american]{csquotes}
+\MakeOuterQuote{"}
+
+% No indentation for new paragraphs
+\usepackage[parfill]{parskip}
+\setlength\parindent{0pt}
+
+
+% For tables
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+% Fix weird whitespace formatting for URLs in bibliography
+\usepackage{xurl}
+
+% \documentclass{scrreprt}
+\makeatletter
+\usepackage{color}
+\definecolor{lightgray}{rgb}{0.95, 0.95, 0.95}
+\definecolor{darkgray}{rgb}{0.4, 0.4, 0.4}
+%\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+\definecolor{editorGray}{rgb}{0.95, 0.95, 0.95}
+\definecolor{editorOcher}{rgb}{1, 0.5, 0} % #FF7F00 -> rgb(239, 169, 0)
+\definecolor{editorGreen}{rgb}{0, 0.5, 0} % #007C00 -> rgb(0, 124, 0)
+\definecolor{orange}{rgb}{1,0.45,0.13}		
+\definecolor{olive}{rgb}{0.17,0.59,0.20}
+\definecolor{brown}{rgb}{0.69,0.31,0.31}
+\definecolor{purple}{rgb}{0.38,0.18,0.81}
+\definecolor{lightblue}{rgb}{0.1,0.57,0.7}
+\definecolor{lightred}{rgb}{1,0.4,0.5}
+\usepackage{upquote}
+\usepackage{listings}
+% CSS
+\lstdefinelanguage{CSS}{
+  keywords={color,background-image:,margin,padding,font,weight,display,position,top,left,right,bottom,list,style,border,size,white,space,min,width, transition:, transform:, transition-property, transition-duration, transition-timing-function},	
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  alsoletter={:},
+  alsodigit={-}
+}
+
+% JavaScript
+\lstdefinelanguage{JavaScript}{
+  morekeywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  morecomment=[s]{/*}{*/},
+  morecomment=[l]//,
+  morestring=[b]",
+  morestring=[b]'
+}
+
+\lstdefinelanguage{HTML5}{
+  language=html,
+  sensitive=true,	
+  alsoletter={<>=-},	
+  morecomment=[s]{<!-}{-->},
+  tag=[s],
+  otherkeywords={
+  % General
+  >,
+  % Standard tags
+	<!DOCTYPE,
+  </html, <html, <head, <title, </title, <style, </style, <link, </head, <meta, />,
+	% body
+	</body, <body,
+	% Divs
+	</div, <div, </div>, 
+	% Paragraphs
+	</p, <p, </p>,
+	% scripts
+	</script, <script,
+  % More tags...
+  <canvas, /canvas>, <svg, <rect, <animateTransform, </rect>, </svg>, <video, <source, <iframe, </iframe>, </video>, <image, </image>, <header, </header, <article, </article
+  },
+  ndkeywords={
+  % General
+  =,
+  % HTML attributes
+  charset=, src=, id=, width=, height=, style=, type=, rel=, href=,
+  % SVG attributes
+  fill=, attributeName=, begin=, dur=, from=, to=, poster=, controls=, x=, y=, repeatCount=, xlink:href=,
+  % properties
+  margin:, padding:, background-image:, border:, top:, left:, position:, width:, height:, margin-top:, margin-bottom:, font-size:, line-height:,
+	% CSS3 properties
+  transform:, -moz-transform:, -webkit-transform:,
+  animation:, -webkit-animation:,
+  transition:,  transition-duration:, transition-property:, transition-timing-function:,
+  }
+}
+
+% For Typescript code listings
+\lstdefinestyle{htmlcssjs} {%
+  % General design
+%  backgroundcolor=\color{editorGray},
+  basicstyle={\footnotesize\ttfamily},   
+  frame=b,
+  % line-numbers
+  xleftmargin={0.75cm},
+  numbers=left,
+  stepnumber=1,
+  firstnumber=1,
+  numberfirstline=true,	
+  % Code design
+  identifierstyle=\color{black},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{editorGreen}\bfseries,
+  stringstyle=\color{editorOcher}\ttfamily,
+  commentstyle=\color{brown}\ttfamily,
+  % Code
+  language=HTML5,
+  alsolanguage=JavaScript,
+  alsodigit={.:;},	
+  tabsize=2,
+  showtabs=false,
+  showspaces=false,
+  showstringspaces=false,
+  extendedchars=true,
+  breaklines=true,
+  % German umlauts
+  literate=%
+  {Ö}{{\"O}}1
+  {Ä}{{\"A}}1
+  {Ü}{{\"U}}1
+  {ß}{{\ss}}1
+  {ü}{{\"u}}1
+  {ä}{{\"a}}1
+  {ö}{{\"o}}1
+}
+
+
+\begin{document}
+\pagestyle{plain}
+\frontmatter
+%Create a title page
+\input{sections/titlepage}
+\clearpage 
+\newpage 
+
+
+\input{sections/abstract}
+\newpage 
+\input{sections/acknowledgments}
+\newpage
+% The table of contents, list of figures and list of tables go here
+\setcounter{tocdepth}{3} 
+% Setting this higher means you get contents entries for
+%  more minor section headers.
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+\listoffigures
+\cleardoublepage
+\listoftables
+
+% Start the main part of the document here.
+
+% ################ CHAPTER 1 ################ 
+\mainmatter
+\input{sections/chapter-1/introduction}
+\input{sections/chapter-1/objectives-and-contributions}
+\input{sections/chapter-1/structure}
+
+% ################ CHAPTER 2 ################
+\input{sections/chapter-2/background}
+
+\input{sections/chapter-2/financial-derivatives/derivatives}
+\input{sections/chapter-2/financial-derivatives/trade-lifecycle}
+\input{sections/chapter-2/financial-derivatives/collateral}
+\input{sections/chapter-2/financial-derivatives/collateral_management}
+
+\input{sections/chapter-2/industry-standards/industry-standards}
+\input{sections/chapter-2/industry-standards/isda-cdm}
+\input{sections/chapter-2/industry-standards/isda-create}
+\input{sections/chapter-2/industry-standards/isda-taxonomy-clause-lib}
+\input{sections/chapter-2/industry-standards/industry-participants}
+
+\input{sections/chapter-2/blockchain/blockchain}
+\input{sections/chapter-2/blockchain/smart-contracts}
+\input{sections/chapter-2/blockchain/smart-legal-contracts}
+\input{sections/chapter-2/blockchain/smart-derivative-contracts}
+\input{sections/chapter-2/blockchain/bvs}
+\input{sections/chapter-2/blockchain/UTXOs}
+\input{sections/chapter-2/blockchain/sCrypt}
+\input{sections/chapter-2/blockchain/oracles}
+
+\input{sections/chapter-2/asset-tokenization/asset-tokenization}
+
+\input{sections/chapter-2/lit_review}
+
+% ################ CHAPTER 3 ################ 
+\input{sections/chapter-3/solution_architecture/solution_architecture}
+\input{sections/chapter-3/solution_architecture/components}
+\input{sections/chapter-3/solution_architecture/mapping-cdm-scrypt}
+\input{sections/chapter-3/solution_architecture/flow_of_events}
+
+% ################ CHAPTER 4 ################ 
+\input{sections/chapter-4/results-discussion/results-discussion}
+
+\input{sections/chapter-3/solution_architecture/custodian}
+
+\input{sections/chapter-3/solution_architecture/benefits/benefits}
+\input{sections/chapter-3/solution_architecture/benefits/financial}
+\input{sections/chapter-3/solution_architecture/benefits/economic}
+\input{sections/chapter-3/solution_architecture/benefits/legal}
+\input{sections/chapter-3/solution_architecture/benefits/technological}
+
+\input{sections/chapter-3/solution_architecture/legal-considerations/legal-considerations}
+
+% ################ CHAPTER 5 ################ 
+\input{sections/chapter-5/conclusions-future-work/conclusions-future-work}
+
+
+% ################ BIBLOGRAPHY ################ 
+\addcontentsline{toc}{chapter}{Bibliography} % adds a page number for the bibliography to the table of contents
+
+% Actually generates your bibliography.
+\bibliographystyle{abbrv}
+\bibliography{bibliography}
+
+% ################ APPENDICES ################ 
+
+\begin{appendices}
+\chapter{Code Listings}
+\input{sections/appendices/relationship}
+\input{sections/appendices/portfolio}
+\input{sections/appendices/position}
+\input{sections/appendices/oracles_yfinance}
+\input{sections/appendices/updating_collateral}
+\input{sections/appendices/CDM}
+
+\end{appendices}
+
+% \chapter*{Project Summary}
+% \addcontentsline{toc}{chapter}{Project Summary}
+
+\end{document}

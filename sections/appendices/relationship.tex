@@ -1,0 +1,58 @@
+\section{Relationship Smart Contract}
+\label{app:relationship}
+
+
+\begin{lstlisting}[style=htmlcssjs, caption=Relationship Smart Contract]
+
+import { assert, ByteString, HashedSet, method, prop, PubKeyHash, SmartContract, hash256 } from 'scrypt-ts'
+
+/*
+    CDM Type Definitions must be translated to sCrypt types (i.e. bigint, ByteString, etc ...)
+
+    A Collateral Relationship contains:
+    - An independent amount (see type definition below)
+    - A list of collateral portoflios (implemented as an HashedSet)
+*/
+
+export type IndependentAmount = {
+    amount: bigint,
+    buyer: PubKeyHash,
+    seller: PubKeyHash
+}
+
+export class Relationship extends SmartContract {
+    @prop()
+    independentAmount: IndependentAmount
+    
+    @prop(true)
+    portfolios: HashedSet<ByteString>
+
+    constructor(independentAmount: IndependentAmount, portfolios: HashedSet<ByteString>) {
+        super(...arguments)
+        this.independentAmount = independentAmount
+        this.portfolios = portfolios
+    }
+
+    @method()
+    public addPortfolio(newPortfolio: ByteString) {
+        this.portfolios.add(newPortfolio)
+        const outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value) + this.buildChangeOutput()
+        this.debug.diffOutputs(outputs)
+        assert(this.ctx.hashOutputs === hash256(outputs), "check hashOutputs failed");
+    }
+
+    @method()
+    public updatePortfolioAddress(oldPortfolio: ByteString, newPortfolio: ByteString) {
+        this.portfolios.delete(oldPortfolio)
+        this.portfolios.add(newPortfolio)
+        const outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value) + this.buildChangeOutput()
+        this.debug.diffOutputs(outputs)
+        assert(this.ctx.hashOutputs === hash256(outputs), "check hashOutputs failed");
+    }
+
+}
+
+\end{lstlisting}
+
+
+

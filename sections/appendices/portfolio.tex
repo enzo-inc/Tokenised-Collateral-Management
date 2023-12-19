@@ -1,0 +1,41 @@
+\section{Portfolio Smart Contract}
+\label{app:portfolio}
+
+\begin{lstlisting}[style=htmlcssjs, caption=Portfolio Smart Contract]
+import { SmartContract, ByteString, HashedSet, assert, prop, method, hash256 } from 'scrypt-ts'
+
+/*
+    CDM Type Definitions exported as basic sCrypt types (i.e. bigint, ByteString, etc.)
+
+    A portfolio is a collection of positions.
+    A portfoio must have a reference to an existing collateral relationship.
+    Properties:
+        - relationship: TX containg UTXO of corresponding to relationship contract
+*/
+
+
+export class Portfolio extends SmartContract {
+    @prop()
+    relationship: ByteString
+    
+    @prop(true)
+    positions: HashedSet<ByteString>
+
+    constructor(relationship: ByteString, positions: HashedSet<ByteString>) {
+        super(...arguments)
+        this.relationship = relationship
+        this.positions = positions
+
+    }
+
+    @method()
+    public addPosition(newPosition: ByteString) {
+        this.positions.add(newPosition)
+        const outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value) + this.buildChangeOutput()
+        this.debug.diffOutputs(outputs)
+        assert(this.ctx.hashOutputs === hash256(outputs), "check hashOutputs failed");
+    }
+
+}
+
+\end{lstlisting}

@@ -1,0 +1,165 @@
+\section{Updating Collateral}
+\label{app:updating_collateral}
+
+\begin{lstlisting}[style=htmlcssjs, caption=Moving funds beteween Collateral Position and Parties' Balances based on updated collateral valuation]
+/*
+    1) Fetch off-chain data and feed it into the contract
+    2) Make a contract call to computeCollateralValue()
+    3) Create spending TX
+        a) If newValue < currentValue, then send the delta to a P2PKH for party 
+        b) If newValue > currentValue, then send the delta Position
+
+*/
+
+import { getBSV_USDC_ExchangeRate } from './getUSDC_BSV_rate'
+import { getCrudeOilPrice } from './getCrudePrice'
+import { setupSigners } from '../../utils/setupSigners'
+import { Position } from '../../contracts/Position'
+import { computeNewCollateralValue } from './computeNewCollateralValue'
+import { MethodCallOptions } from 'scrypt-ts'
+
+let positionTxId = '8da45c34fa1e5646bd1c0cf381d50e3ac1f1844725f000f3960d21f390614b41'
+
+async function crudePrice() {
+  return await getCrudeOilPrice();
+}
+
+async function exchangeRate() {
+    return await getBSV_USDC_ExchangeRate();
+}
+
+async function getCurrentCollateralValue(positionTxId): Promise<bigint> {
+    console.log('Fetching Current Collateral Value')
+    const { signerA, signerB, signerCustodian } = await setupSigners();
+    Position.compile();
+    const positionTx = await signerA.connectedProvider.getTransaction(positionTxId);
+    const instance = await Position.fromTx(positionTx, 0);
+    const currentCollateralValue = await instance.currentCollateralValue;
+    return currentCollateralValue;
+  }
+
+async function calculateNewCollateralValue(): Promise<bigint> {
+    const mtm = await crudePrice();
+    const getUSDC_BSV_rate = await exchangeRate();
+    // Now you can use these values to compute the new collateral value
+    // Remove the *10 below, it's just for testing purposes
+    const newCollateralValue = computeNewCollateralValue(mtm, getUSDC_BSV_rate.rate * 10);
+    console.log('New Collateral Value:', BigInt(Math.trunc(newCollateralValue)));
+    return BigInt(Math.trunc(newCollateralValue));
+}
+
+// Async function to call updateCollateralValue of the Position contract with the return value of caluclaateNewCollateralValue()
+async function updateCollateralValue() {
+    console.log('Updating Collateral Value')
+    const { signerA, signerB, signerCustodian } = await setupSigners();
+    Position.compile();
+    const positionTx = await signerA.connectedProvider.getTransaction(positionTxId);
+    const instance = await Position.fromTx(positionTx, 0);
+    await instance.connect(signerA);
+    const newCollateralValue = await calculateNewCollateralValue();
+
+    const current = instance
+    const nextInstance = current.next()
+    nextInstance.setCollateralValue(newCollateralValue)
+
+    const { tx: callTx } = await current.methods.updateCollateralValue(
+        newCollateralValue,
+        {
+            fromUTXO: current.utxo,
+            next: {
+                instance: nextInstance,
+                balance: current.balance
+            } 
+        } as MethodCallOptions<Position>
+    )
+    console.log('Contract Method Called')
+    console.log('Collateral Value Updated');
+    return callTx.id
+    
+}
+
+async function moveCollateralToP2PKH(newCollateralValue: bigint, delta: bigint) {
+    const { signerA, signerB, signerCustodian } = await setupSigners();
+    Position.compile();
+    const positionTx = await signerA.connectedProvider.getTransaction(positionTxId);
+    const instance = await Position.fromTx(positionTx, 0);
+    await instance.connect(signerA);
+
+    const current = instance
+    const nextInstance = current.next()
+    nextInstance.setCollateralValue(newCollateralValue)
+
+    const { tx: callTx } = await current.methods.moveCollateralToP2PKH(
+        delta,
+        {
+            fromUTXO: current.utxo,
+            next: {
+                instance: nextInstance,
+                balance: current.balance - Number(delta)
+            } 
+        } as MethodCallOptions<Position>
+    )
+    console.log("Moved funds from Position to P2PKH at ", callTx.id)
+    return callTx.id
+}
+
+async function moveCollateralToPosition(newCollateralValue: bigint, delta: bigint) {
+    const { signerA, signerB, signerCustodian } = await setupSigners();
+    Position.compile();
+    const positionTx = await signerA.connectedProvider.getTransaction(positionTxId);
+    const instance = await Position.fromTx(positionTx, 0);
+    await instance.connect(signerA);
+
+    const current = instance
+    const nextInstance = current.next()
+    nextInstance.setCollateralValue(newCollateralValue)
+
+    const { tx: callTx } = await current.methods.moveCollateralToPosition(
+        delta,
+        {
+            fromUTXO: current.utxo,
+            next: {
+                instance: nextInstance,
+                balance: current.balance + Number(delta)
+            }
+        } as MethodCallOptions<Position>
+    )
+    console.log("Moved funds from P2PKH to Position at ", callTx.id)
+    return callTx.id
+}
+
+
+const run = async () => {
+    console.log('Before update:')
+    const currentCollateralValue = await getCurrentCollateralValue(positionTxId)
+    console.log('Current Collateral Value: ', currentCollateralValue)
+
+    // Compute new collateral value
+    const newCollateralValue = await calculateNewCollateralValue()
+
+    // Move funds from position to P2PKH for custodian
+    if (newCollateralValue < currentCollateralValue) {
+        const delta = currentCollateralValue - newCollateralValue
+        console.log("delta: ", delta)
+        positionTxId = await moveCollateralToP2PKH(newCollateralValue, delta)
+    }
+    
+    // Move funds from P2PKH for custodian to position
+    else {
+        const delta = newCollateralValue - currentCollateralValue
+        console.log("delta: ", delta)
+        positionTxId = await moveCollateralToPosition(newCollateralValue, delta)
+    }
+
+    // positionTxId = await updateCollateralValue();
+    console.log('After update:')
+    await getCurrentCollateralValue(positionTxId).then((value) => console.log('Collateral Value Retrieved after Update:', value));
+}
+
+run();
+
+
+
+
+
+\end{lstlisting}

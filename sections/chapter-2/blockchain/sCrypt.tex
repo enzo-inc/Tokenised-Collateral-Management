@@ -1,0 +1,15 @@
+\subsubsection{sCrypt}
+\label{subsec:sCrypt}
+sCrypt \citep{scrypt_home} is a high-level scripting language purpose-built for writing smart contracts on the BSV blockchain. It was conceived as a more developer-friendly alternative to Bitcoin's low-level scripting language, Bitcoin Script. While Bitcoin Script has proven to be highly secure and robust, it is also complex and cumbersome for developers, especially those new to blockchain development. To address this, sCrypt was developed to provide a statically-typed, C-style syntax that is both expressive and familiar to developers, thereby improving the readability, development efficiency, and bug detection in BSV smart contracts.
+
+In our project to tokenize collateral assets on BSV, we are using sCrypt for several key reasons:
+
+\begin{itemize}
+    \item \textbf{Efficiency and Readability}. The syntax of sCrypt is similar to popular programming languages such as TypeScript \citep{typescript_home}, making it easier to write, read, and maintain. This improves efficiency and reduces the potential for errors in the development process.
+
+    \item \textbf{Security}. sCrypt is engineered to tap into the native security protocols of Bitcoin Script by directly cross-compiling from its high-level language to Bitcoin Script. Through the process of cross-compilation via Typescript, sCrypt allows for the development of smart contracts that are not only secure but also reliable and robust. This direct translation ensures that the smart contracts are tightly integrated with Bitcoin's established security features, guaranteeing the integrity of our tokenized collateral assets without introducing extraneous vulnerabilities.
+    
+    \item \textbf{Static Typing}. sCrypt is a statically typed language, which enables the detection of many errors at compile-time rather than at run-time. This is particularly important in blockchain development where contracts are immutable once deployed.
+    
+    \item \textbf{Built for BSV}. sCrypt is specifically designed for the BSV blockchain. This ensures smart contracts can fully leverage the unique features of BSV, such as its scalability and microtransaction capabilities, which are integral to managing tokenized collateral assets at scale.
+\end{itemize}

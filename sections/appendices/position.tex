@@ -1,0 +1,140 @@
+\section{Position Smart Contract}
+\label{app:position}
+
+\begin{lstlisting}[style=htmlcssjs, caption=Position Smart Contract]
+import { SmartContract, ByteString, Utils,  assert, prop, method, slice, hash256 } from 'scrypt-ts'
+import { RabinSig, RabinPubKey, RabinVerifierWOC } from 'scrypt-ts-lib'
+
+/*
+    CDM Type Definitions exported as basic sCrypt types (i.e. bigint, ByteString, etc.)
+
+    A Collateral Position contains information regarding a specific piece of collateral posted.
+    
+    From the CDM:
+
+        OMITTED HERE:
+        - collateralPositionStatus: The collateral positions settlement status (OMITTED here as settlment is instantaneous)
+        - priceQuantity [ ]: An array of exchanges between parties of one quantity (Quantity) against another (Price) (OMITTED as transfer of value happens in satoshis)
+        - tradeReference: reference to an external contract in case the product is contractual (OMITTED here for simplicity)
+
+        NOT OMITTED: 
+        - treatment: Any treament applied to collateral
+        - cashBalance: This is simply the value of the collateral at a specific point in time
+                       * This is represented here by the value of the UTXO at time t after USD -> Satoshis conversion * 
+        - product: The product underlying the position (here only the Commodity product is used as it is the closest to VCCs)
+
+    From BSV-specific architecture:
+        - portfolio: address of the portfolio of which the position is part
+
+*/
+
+export type ExchangeRate = {
+    timestamp: bigint
+    price: bigint
+    symbol: ByteString
+}
+
+
+export class Position extends SmartContract {
+    // Address of the Portfolio to which this position belongs
+    @prop()
+    portfolio: ByteString
+
+    // Oracles (for USDC-SAT) exchange Rabin public key.
+    @prop()
+    oraclePubKey: RabinPubKey
+
+    // The product underlying the position.
+    @prop()
+    productType: ByteString
+
+    // The identifier of the product underlying the position.
+    @prop()
+    productIdentifier: ByteString
+
+    // The quantity of the product underlying the position.
+    @prop()
+    productQuantity: bigint
+
+    // The current value of the collateral
+    @prop(true)
+    currentCollateralValue: bigint
+    
+
+    constructor(portfolio: ByteString, oraclePubKey: RabinPubKey, productType: ByteString, productIdentifier: ByteString, productQuantity: bigint, currentCollateralValue: bigint) {
+        super(...arguments)
+        this.portfolio = portfolio
+        this.oraclePubKey = oraclePubKey
+        this.productType = productType
+        this.productIdentifier = productIdentifier
+        this.productQuantity = productQuantity
+        this.currentCollateralValue = currentCollateralValue
+    }
+
+    @method()
+    public moveCollateralToP2PKH(delta: bigint) {
+        this.setCollateralValue(this.currentCollateralValue - delta)
+        const contractOutput = this.buildStateOutput(this.ctx.utxo.value - delta)
+        const P2PKHOutput = this.buildChangeOutput() // Uses signer's address by default (in this case the custodian)
+        const outputs: ByteString = contractOutput + P2PKHOutput
+        this.debug.diffOutputs(outputs)
+        assert(hash256(outputs) == this.ctx.hashOutputs, 'hashOutputs check failed')
+    }
+
+    @method()
+    public moveCollateralToPosition(delta: bigint) {
+        this.setCollateralValue(this.currentCollateralValue + delta)
+        const contractOutput = this.buildStateOutput(this.ctx.utxo.value + delta)
+        const P2PKHOutput = this.buildChangeOutput() // Uses signer's address by default (in this case the custodian)
+        const outputs: ByteString = contractOutput + P2PKHOutput
+        this.debug.diffOutputs(outputs)
+        assert(hash256(outputs) == this.ctx.hashOutputs, 'hashOutputs check failed')
+    }
+
+    @method()
+    setCollateralValue(value: bigint): void {
+        this.currentCollateralValue = value
+    }
+
+    @method()
+    public updateCollateralValue(newValue: bigint) {
+        const amount: bigint = this.ctx.utxo.value
+        this.setCollateralValue(newValue)
+        const outputs: ByteString = this.buildStateOutput(amount) + this.buildChangeOutput()
+        this.debug.diffOutputs(outputs)
+        assert(this.ctx.hashOutputs == hash256(outputs), 'hashOutputs mismatch')
+        assert(true)
+    }
+
+    // Parses signed message from the oracle.
+    @method()
+    static parseExchangeRate(msg: ByteString): ExchangeRate {
+        // 4 bytes timestamp (LE) + 8 bytes rate (LE) + 1 byte decimal + 16 bytes symbol
+        return {
+            timestamp: Utils.fromLEUnsigned(slice(msg, 0n, 4n)),
+            price: Utils.fromLEUnsigned(slice(msg, 4n, 12n)),
+            symbol: slice(msg, 13n, 29n),
+        }
+    }
+
+    @method()
+    public VerifyOracleData(msg: ByteString, sig: RabinSig) {
+        // Verify oracle signature.
+        assert(
+            RabinVerifierWOC.verifySig(msg, sig, this.oraclePubKey),
+            'Oracle sig verify failed.'
+        )
+
+        console.log('Oracle Signature Verified')
+
+        // Decode data.
+        const exchangeRate = Position.parseExchangeRate(msg)
+
+        console.log('Parsed Oracle Data', exchangeRate)
+        assert(true)
+    }
+    
+
+}
+
+\end{lstlisting}
